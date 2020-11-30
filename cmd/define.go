@@ -1,32 +1,82 @@
+/*
+Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package cmd
 
 import (
+	"fmt"
 	"log"
 
-	"github.com/black-gato/dictionary-cmdl/pkg/define"
+	d "dictionary-cmdl/pkg/define"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-func init() {
-	rootCmd.AddCommand(defineCmd)
-}
-
+// defineCmd represents the define command
 var defineCmd = &cobra.Command{
 	Use:   "define",
 	Short: "return all information on a word in a languge",
-	Args:  cobra.MinimumNArgs(2),
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("define called")
+		// l := cmd.Flag("lanaguage").Value.String()
+		// if l == "" {
+		// 	log.Fatal("language is required")
+		// }
+
 		w := cmd.Flag("word").Value.String()
 		if w == "" {
 			log.Fatal("word is required")
 		}
 
-		l := cmd.Flag("lanaguage").Value.String()
-		if l == "" {
-			log.Fatal("language is required")
+		data, err := d.GetWordData(w)
+		if err != nil {
+			log.Fatal(err)
 		}
+		fmt.Println()
+		for _, d := range data {
+			log.Println(d)
 
-		wrd, err := define.GetWordData(w, l)
-
+		}
 	},
+}
+
+func init() {
+
+	// defineCmd.Flags().StringP("language", "l", "", "language you are using")
+	defineCmd.Flags().StringP("word", "w", "", "word you are defining")
+	if err := viper.BindPFlags(defineCmd.Flags()); err != nil {
+		log.Fatal(err)
+	}
+
+	rootCmd.AddCommand(defineCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// defineCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// defineCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
 }

@@ -7,10 +7,11 @@ import (
 	"net/http"
 )
 
-func GetWordData(lang, word string) ([]Entry, error) {
-	path := fmt.Sprintf("https://api.dictionaryapi.dev/api/v2/entries/%s/%s", lang, word)
+func GetWordData(word string) ([]Entry, error) {
+	path := fmt.Sprintf("https://api.dictionaryapi.dev/api/v2/entries/en/%s", word)
 	resp, err := http.Get(path)
 	if err != nil {
+		fmt.Println("err didn't hit api")
 		return nil, err
 	}
 
@@ -18,13 +19,18 @@ func GetWordData(lang, word string) ([]Entry, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println("didn't like what you got back")
 		return nil, err
 	}
 
+	keysBody := []byte(`[{"id": 1,"key": "-"},{"id": 2,"key": "-"},{"id": 3,"key": "-"}]`)
+
 	dic := dictionaryResponse{}
+
 
 	err = json.Unmarshal(body, &dic)
 	if err != nil {
+		fmt.Println("didn't unmarhsal")
 		return nil, err
 	}
 
@@ -33,10 +39,10 @@ func GetWordData(lang, word string) ([]Entry, error) {
 }
 
 type Entry struct {
-	Word      string    `json:"word,omitEmpty"`
-	Phonetics Phonetics `json:"phonetics,omitEmpty"`
-	Origin    string    `json:"origin,omitEmpty"`
-	Meanings  Meaning   `json:"meanings,omitEmpty"`
+	Word      string      `json:"word,omitEmpty"`
+	Phonetics []Phonetics `json:"phonetics,omitEmpty"`
+	Origin    string      `json:"origin,omitEmpty"`
+	Meanings  Meaning     `json:"meanings,omitEmpty"`
 }
 
 type Phonetics struct {
@@ -56,5 +62,5 @@ type Definition struct {
 }
 
 type dictionaryResponse struct {
-	Response []Entry `json:"omitEmpty"`
+	Response []Entry
 }
