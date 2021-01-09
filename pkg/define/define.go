@@ -41,17 +41,30 @@ func GetEntry(lang, word string) (string, error) {
 		return "nil", err
 	}
 
-	dic := &[]CommandDefinition{}
+	dic := make([]CommandDefinition, 20)
+	var start, total int
 
-	for _, d := range data {
+	for ml := range data[0].Meanings {
 
-		return d.Word, err
+		total += len(data[0].Meanings[ml].Definitions)
+
+		for _, def := range data[0].Meanings[ml].Definitions {
+			for i := start; i < total; i++ {
+
+				dic[i].Word = word
+				dic[i].POS = data[0].Meanings[ml].PartOfSpeech
+				dic[i].Def = def.Def
+			}
+
+		}
+
+		start += total
 
 	}
 
-	fmt.Println(dic)
+	entry := fmt.Sprintf("Word:			%s\n\nPart of Speech:		%s\n\nDef:			%s\n\n", dic[0].Word, dic[0].POS, dic[0].Def)
 
-	return "nil", err
+	return entry, err
 
 }
 
@@ -86,4 +99,11 @@ type dictionaryResponse struct {
 type CommandDefinition struct {
 	Word string
 	POS  string
+	Def  string
+}
+
+type DefError struct {
+	Title      string `json:"title"`
+	Message    string `json:"message"`
+	Resolution string `json:"resolution"`
 }
